@@ -8,7 +8,6 @@
     body { background: #1a1a2e; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
     canvas { display: block; }
 
-    /* TOP BAR */
     #topbar {
       position: absolute; top: 0; left: 0; right: 0; height: 56px;
       background: rgba(10,10,30,0.92); display: flex; align-items: center;
@@ -16,41 +15,39 @@
       border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10;
     }
     #topbar h1 { color: #fff; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; flex-shrink: 0; }
-
-    /* MODE BUTTONS */
     #mode-buttons { display: flex; gap: 8px; }
     .mode-btn {
       padding: 7px 16px; border-radius: 20px;
       border: 1px solid rgba(255,255,255,0.15);
       background: rgba(255,255,255,0.05); color: #aaa;
-      font-size: 12px; cursor: pointer;
-      transition: all 0.2s; font-family: 'Segoe UI', sans-serif;
-      white-space: nowrap;
+      font-size: 12px; cursor: pointer; transition: all 0.2s;
+      font-family: 'Segoe UI', sans-serif; white-space: nowrap;
     }
     .mode-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
     .mode-btn.active { background: #7ecfff; color: #1a1a2e; border-color: #7ecfff; font-weight: 700; }
 
-    /* LEGEND */
     #legend {
       position: absolute; bottom: 24px; left: 20px;
       background: rgba(10,10,30,0.88); border-radius: 10px;
       padding: 14px 18px; z-index: 10;
-      border: 1px solid rgba(255,255,255,0.08);
-      min-width: 210px; transition: all 0.3s;
+      border: 1px solid rgba(255,255,255,0.08); min-width: 210px;
     }
     #legend h3 { color: #aaa; font-size: 11px; text-transform: uppercase;
       letter-spacing: 1px; margin-bottom: 10px; }
-    .legend-bar {
-      width: 180px; height: 12px; border-radius: 6px;
+    .legend-bar { width: 180px; height: 12px; border-radius: 6px;
       background: linear-gradient(to right, #00aaff, #00ff88, #ffdd00, #ff2200);
-      margin-bottom: 6px;
-    }
+      margin-bottom: 6px; }
     .legend-labels { display: flex; justify-content: space-between; color: #aaa; font-size: 11px; }
     .legend-item { display: flex; align-items: center; gap: 8px;
       color: #ccc; font-size: 12px; margin-top: 7px; }
+    .legend-item.clickable { cursor: pointer; padding: 4px 6px; border-radius: 6px;
+      margin-top: 3px; transition: all 0.15s; border: 1px solid transparent; }
+    .legend-item.clickable:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .legend-item.clickable.active { background: rgba(126,207,255,0.15);
+      border-color: rgba(126,207,255,0.4); color: #fff; }
+    .legend-item.clickable.dimmed { opacity: 0.35; }
     .legend-dot { width: 13px; height: 13px; border-radius: 3px; flex-shrink: 0; }
 
-    /* POPUP */
     #popup {
       position: absolute; top: 70px; right: 20px; width: 290px;
       background: rgba(10,10,30,0.95); border-radius: 12px; padding: 20px;
@@ -76,13 +73,14 @@
     .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
     .tag { display: inline-block; padding: 2px 8px; border-radius: 4px;
       font-size: 11px; font-weight: 600; color: #fff; }
+    .campus-tag { display: inline-block; padding: 3px 10px; border-radius: 12px;
+      font-size: 12px; font-weight: 700; color: #fff; background: #7ecfff;
+      color: #1a1a2e; margin-bottom: 12px; }
 
-    /* HINT */
     #hint { position: absolute; bottom: 24px; right: 20px;
       color: rgba(255,255,255,0.25); font-size: 11px; z-index: 10;
       text-align: right; line-height: 2; }
 
-    /* LOADING */
     #loading { position: absolute; inset: 0; background: #1a1a2e;
       display: flex; flex-direction: column; align-items: center;
       justify-content: center; z-index: 100; gap: 20px; }
@@ -103,34 +101,57 @@
 <div id="topbar">
   <h1>🏛️ Campus Universitaire</h1>
   <div id="mode-buttons">
-    <button class="mode-btn active" onclick="setMode('conso')">💧 Consommation</button>
-    <button class="mode-btn" onclick="setMode('etablissement')">🏫 Établissement</button>
-    <button class="mode-btn" onclick="setMode('fonction')">🔧 Fonction</button>
+    <button class="mode-btn active" onclick="setMode('conso', this)">💧 Consommation</button>
+    <button class="mode-btn" onclick="setMode('etablissement', this)">🏫 Établissement</button>
+    <button class="mode-btn" onclick="setMode('fonction', this)">🔧 Fonction</button>
   </div>
 </div>
 
-<div id="legend">
-  <!-- filled dynamically -->
+<div id="legend"></div>
+
+<!-- Filter total panel -->
+<div id="filter-panel" style="display:none; position:absolute; top:70px; right:20px; width:290px;
+  background:rgba(10,10,30,0.95); border-radius:12px; padding:20px;
+  border:1px solid rgba(126,207,255,0.25); z-index:10;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);">
 </div>
 
 <div id="popup">
   <span class="close-btn" onclick="closePopup()">×</span>
-  <h2 id="p-nom"></h2>
-  <div class="bid" id="p-id"></div>
-  <div class="row"><span class="label">Établissement</span><span class="value" id="p-etab"></span></div>
-  <div class="row"><span class="label">Fonction</span><span class="value"><span class="tag" id="p-type"></span></span></div>
-  <div class="row"><span class="label">Dossier</span><span class="value" id="p-dossier"></span></div>
-  <div class="row" style="flex-direction:column;align-items:flex-start;gap:2px;margin-top:6px;">
-    <div class="conso-big" id="p-conso2019"></div>
-    <div class="conso-unit">m³ consommés en 2019</div>
+  <div id="popup-building" style="display:none">
+    <h2 id="p-nom"></h2>
+    <div class="bid" id="p-id"></div>
+    <div class="row"><span class="label">Établissement</span><span class="value" id="p-etab"></span></div>
+    <div class="row"><span class="label">Fonction</span><span class="value"><span class="tag" id="p-type"></span></span></div>
+    <div class="row"><span class="label">Dossier</span><span class="value" id="p-dossier"></span></div>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:2px;margin-top:6px;">
+      <div class="conso-big" id="p-conso2019"></div>
+      <div class="conso-unit">m³ consommés en 2019</div>
+    </div>
+    <div class="bar-wrap">
+      <div class="bar-label"><span>2018</span><span id="p-val2018"></span></div>
+      <div class="bar-bg"><div class="bar-fill" id="p-bar2018" style="background:#4a9eff;"></div></div>
+    </div>
+    <div class="bar-wrap" style="margin-top:8px;">
+      <div class="bar-label"><span>2019</span><span id="p-val2019"></span></div>
+      <div class="bar-bg"><div class="bar-fill" id="p-bar2019" style="background:#7ecfff;"></div></div>
+    </div>
   </div>
-  <div class="bar-wrap">
-    <div class="bar-label"><span>2018</span><span id="p-val2018"></span></div>
-    <div class="bar-bg"><div class="bar-fill" id="p-bar2018" style="background:#4a9eff;"></div></div>
-  </div>
-  <div class="bar-wrap" style="margin-top:8px;">
-    <div class="bar-label"><span>2019</span><span id="p-val2019"></span></div>
-    <div class="bar-bg"><div class="bar-fill" id="p-bar2019" style="background:#7ecfff;"></div></div>
+  <div id="popup-campus" style="display:none">
+    <h2 id="c-nom"></h2>
+    <div class="bid" id="c-id"></div>
+    <div class="row">
+      <span class="label">Surface</span>
+      <span class="value" id="c-surface"></span>
+    </div>
+    <div class="row" style="flex-direction:column;align-items:flex-start;gap:2px;margin-top:6px;">
+      <div class="conso-big" id="c-conso"></div>
+      <div class="conso-unit">m³ consommés en 2019</div>
+    </div>
+    <div class="bar-wrap" style="margin-top:6px;">
+      <div class="bar-label"><span>Consommation 2019</span><span id="c-val"></span></div>
+      <div class="bar-bg"><div class="bar-fill" id="c-bar" style="background:#7ecfff;"></div></div>
+    </div>
   </div>
 </div>
 
@@ -154,117 +175,186 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-// ── DATA ──────────────────────────────────────────────────────────────────────
+// ── BUILDING DATA ─────────────────────────────────────────────────────────────
 const waterData = {"B001":{"code":"IUT_GRAD","nom":"IUT Gradignan","type":"ENSEG","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":2136,"conso2019":2520},"B002":{"code":"CROUS_R3","nom":"Restaurant 3","type":"RESTO","etablissement":"CROUS","dossier":"Restaurants_Universitaires","conso2018":1491,"conso2019":1531},"B003":{"code":"Vest_tenni","nom":"SUAPS Vestiaire Tennis","type":"SPORT","etablissement":"UB","dossier":"SUAPS","conso2018":56,"conso2019":1},"B004":{"code":"STAPS","nom":"UFR STAPS","type":"SPORT","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":1244,"conso2019":791},"B005":{"code":"COSEC","nom":"SUAPS COSEC","type":"N/A","etablissement":"UB","dossier":"SUAPS","conso2018":806,"conso2019":836},"B006":{"code":"Arqueo","nom":"Maison de l'Archéologie","type":"RECHE","etablissement":"UBM","dossier":"Universite_Bordeaux_Montaigne","conso2018":767,"conso2019":720},"B007":{"code":"MSHA","nom":"Maison des Sciences de l'Homme d'Aquitaine","type":"RECHE","etablissement":"AUT","dossier":"Etablissements_autres","conso2018":326,"conso2019":316},"B008":{"code":"MDSs","nom":"Maison des Suds","type":"RECHE","etablissement":"CNRS","dossier":"CNRS","conso2018":220,"conso2019":201},"B009":{"code":"MDART","nom":"Maison des Arts","type":"ENSEG","etablissement":"UBM","dossier":"Universite_Bordeaux_Montaigne","conso2018":524,"conso2019":497},"B010":{"code":"EM_MAC","nom":"Equipe Mobile","type":"N/A","etablissement":"CROUS","dossier":"Services_CROUS","conso2018":78,"conso2019":115},"B011":{"code":"BEC","nom":"B.E.C.","type":"SPORT","etablissement":"AUT","dossier":"Etablissements_autres","conso2018":4261,"conso2019":921},"B012":{"code":"VEstPAIRE","nom":"SUAPS Vestiaire Plein Air","type":"SPORT","etablissement":"UB","dossier":"SUAPS","conso2018":246,"conso2019":558},"B013":{"code":"SUAPSLOG","nom":"SUAPS Logement","type":"N/A","etablissement":"UB","dossier":"SUAPS","conso2018":21,"conso2019":53},"B014":{"code":"RU_ESPCAMP","nom":"EMS","type":"N/A","etablissement":"CROUS","dossier":"Restaurants_Universitaires","conso2018":144,"conso2019":662},"B015":{"code":"SERTAKI","nom":"Caféteria SIRTAKI","type":"RESTO","etablissement":"CROUS","dossier":"Restaurants_Universitaires","conso2018":2493,"conso2019":1293},"B016":{"code":"BIB_DRLET","nom":"Bibliothèque droit/lettre","type":"BIBLIO","etablissement":"UBM","dossier":"Universite_Bordeaux_Montaigne","conso2018":1975,"conso2019":1752},"B017":{"code":"IEP","nom":"I.E.P.","type":"ENSEG","etablissement":"AUT","dossier":"Etablissements_autres","conso2018":1076,"conso2019":954},"B018":{"code":"PPASCAL","nom":"Centre Paul Pascal","type":"RECHE","etablissement":"CNRS","dossier":"CNRS","conso2018":9860,"conso2019":11779},"B019":{"code":"BRIVAZAC","nom":"Chateau BRIVAZAC","type":"RECHE","etablissement":"CNRS","dossier":"CNRS","conso2018":304,"conso2019":916},"B020":{"code":"ICMCB","nom":"ICMCB","type":"RECHE","etablissement":"CNRS","dossier":"CNRS","conso2018":5092,"conso2019":5014},"B021":{"code":"ENSMAC","nom":"ENSCBP","type":"RECHE","etablissement":"INP","dossier":"INP","conso2018":3007,"conso2019":2447},"B022":{"code":"VT_SPADIUM","nom":"SUAPS Vestiaire Stadium","type":"SPORT","etablissement":"UB","dossier":"SUAPS","conso2018":1046,"conso2019":4400},"B023":{"code":"SUAPS_PISC","nom":"SUAPS Piscine","type":"SPORT","etablissement":"UB","dossier":"SUAPS","conso2018":193,"conso2019":227},"B024":{"code":"HAL_SPORT","nom":"SUAPS Halle des Sports","type":"SPORT","etablissement":"UB","dossier":"SUAPS","conso2018":156,"conso2019":146},"B025":{"code":"LIG TENNIS","nom":"Ligue de Tennis de Guyenne","type":"SPORT","etablissement":"AUT","dossier":"Etablissements_autres","conso2018":430,"conso2019":854},"B026":{"code":"ENSAM","nom":"ENSAM","type":"N/A","etablissement":"AUT","dossier":"Etablissements_autres","conso2018":18790,"conso2019":18962},"B027":{"code":"IOGS","nom":"IOGS","type":"RECHE","etablissement":"AUT","dossier":"Etablissements_autres","conso2018":1990,"conso2019":2137},"B028":{"code":"P_CRECHE","nom":"Le P'tit Campus","type":"N/A","etablissement":"AUT","dossier":"Etablissements_autres","conso2018":513,"conso2019":432},"B029":{"code":"CIO","nom":"C.I.O. (Rectorat)","type":"ADMIN","etablissement":"AUT","dossier":"Etablissements_autres","conso2018":103,"conso2019":129},"B030":{"code":"N/A","nom":"N/A","type":"N/A","etablissement":"UB","dossier":"N/A","conso2018":0,"conso2019":0},"B031":{"code":"DR15","nom":"Délégation Régionale","type":"ADMIN","etablissement":"CNRS","dossier":"CNRS","conso2018":299,"conso2019":353},"B032":{"code":"Resto CNRS","nom":"Restaurant CNRS","type":"RESTO","etablissement":"CNRS","dossier":"CNRS","conso2018":2121,"conso2019":2523},"B033":{"code":"CNRS LCTS","nom":"Laboratoire LCTS","type":"RECHE","etablissement":"CNRS","dossier":"CNRS","conso2018":536,"conso2019":513},"B034":{"code":"PAC UBM","nom":"PAC PESSAC Montesquieu","type":"ENSEG","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":9478,"conso2019":8836},"B035":{"code":"CROUS RU2","nom":"Restaurant 2","type":"RESTO","etablissement":"CROUS","dossier":"Restaurants_Universitaires","conso2018":2194,"conso2019":2148},"B036":{"code":"PT ENSCBP","nom":"Plateau Technique ENSCBP","type":"N/A","etablissement":"INP","dossier":"INP","conso2018":401,"conso2019":369},"B037":{"code":"ENGESID","nom":"ENSEGID","type":"RECHE","etablissement":"INP","dossier":"INP","conso2018":545,"conso2019":347},"B038":{"code":"LABO_BX","nom":"Service Commun des Laboratoires","type":"RECHE","etablissement":"LABO","dossier":"Laboratoires","conso2018":688,"conso2019":596},"B039":{"code":"INP_ENSEIR","nom":"ENSEIRB MATHMECA","type":"RECHE","etablissement":"INP","dossier":"INP","conso2018":2814,"conso2019":3381},"B040":{"code":"LyCEE A KA","nom":"Lycée Alfred Kastler","type":"ENSEG","etablissement":"AUT","dossier":"Etablissements_autres","conso2018":17813,"conso2019":12286},"B041":{"code":"R_Vill6","nom":"Village 6","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":12895,"conso2019":12280},"B042":{"code":"R_MDSCIENT","nom":"Maison des Scientifiques","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":6797,"conso2019":3835},"B043":{"code":"R_FMAURIAC","nom":"François Mauriac","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":11107,"conso2019":11064},"B044":{"code":"R_AUSONE","nom":"Résidence Ausone","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":0,"conso2019":4823},"B045":{"code":"RES_MONT","nom":"Résidence Montesquieu","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":7547,"conso2019":6796},"B046":{"code":"RES_ESCABE","nom":"L'Escabelle","type":"RESIDENCE","etablissement":"DOMO FRANCE","dossier":"Résidences_étudiantes","conso2018":10495,"conso2019":17228},"B047":{"code":"R_PGILLES","nom":"Résidence Pierre Gilles de Gennes","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":8151,"conso2019":8343},"B048":{"code":"R_HABSOLID","nom":"Résidence Habitat Solidaire","type":"RESIDENCE","etablissement":"Gironde Habitat","dossier":"Résidences_étudiantes","conso2018":5077,"conso2019":5573},"B049":{"code":"R_PMCURIE","nom":"Résidence Pierre et Marie Curie","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":20951,"conso2019":20340},"B050":{"code":"R_Vill5","nom":"Village 5","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":24340,"conso2019":24478},"B051":{"code":"RES_EDURK","nom":"Résidence Emile Durkheim","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":14688,"conso2019":13757},"B052":{"code":"R_VILL2","nom":"Village 2","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":14761,"conso2019":17672},"B053":{"code":"R_GALILEE","nom":"Résidence GALILEE","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":7351,"conso2019":6987},"B054":{"code":"R_Vill1AB","nom":"Village 1 AB","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":19772,"conso2019":19598},"B055":{"code":"R_VILL4L","nom":"Village 4 Les Lumières","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":18864,"conso2019":22487},"B056":{"code":"R_JBAKER","nom":"Résidence Joséphine Baker","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":0,"conso2019":3564},"B057":{"code":"UBM 1TRAN","nom":"Montaigne 1ère et 2ème tranche","type":"ENSEG","etablissement":"UBM","dossier":"Universite_Bordeaux_Montaigne","conso2018":7028,"conso2019":7048},"B058":{"code":"UBM 3 TRAN","nom":"Montaigne 3ème tranche","type":"ENSEG","etablissement":"UBM","dossier":"Universite_Bordeaux_Montaigne","conso2018":3217,"conso2019":4467},"B059":{"code":"CROUS R1","nom":"Restaurant 1","type":"RESTO","etablissement":"CROUS","dossier":"Restaurants_Universitaires","conso2018":2519,"conso2019":2432},"B060":{"code":"R_VILL3","nom":"Village 3","type":"RESIDENCE","etablissement":"CROUS","dossier":"Résidences_étudiantes","conso2018":55017,"conso2019":55232},"B061":{"code":"A00","nom":"Bâtiment A00","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":112,"conso2019":0},"B062":{"code":"A01","nom":"Bâtiment A01","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":1738,"conso2019":0},"B063":{"code":"A02","nom":"Bâtiment A02","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":762,"conso2019":0},"B064":{"code":"A03","nom":"Bâtiment A03","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":390,"conso2019":0},"B065":{"code":"A04","nom":"Bâtiment A04","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":2124,"conso2019":0},"B066":{"code":"A04a","nom":"Bâtiment A04a","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":249,"conso2019":0},"B067":{"code":"A04n","nom":"Bâtiment A04n","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":1567,"conso2019":0},"B068":{"code":"A05","nom":"Bâtiment A05","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B069":{"code":"A05 bis","nom":"Bâtiment A05 bis","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":14,"conso2019":0},"B070":{"code":"A08","nom":"Bâtiment A08","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":83,"conso2019":0},"B071":{"code":"A09a","nom":"Bâtiment A09a","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":295,"conso2019":0},"B072":{"code":"A10","nom":"Bâtiment A10","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":773,"conso2019":233},"B073":{"code":"A10bis","nom":"Bâtiment A10bis","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":10,"conso2019":0},"B074":{"code":"A11bis","nom":"Bâtiment A11bis","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":2436,"conso2019":0},"B075":{"code":"A12","nom":"Bâtiment A12","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":4136,"conso2019":0},"B076":{"code":"A13","nom":"Bâtiment A13","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":441,"conso2019":224},"B077":{"code":"A14","nom":"Bâtiment A14","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":66,"conso2019":0},"B078":{"code":"A20","nom":"Bâtiment A20","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B079":{"code":"A21","nom":"Bâtiment A21","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":2268,"conso2019":0},"B080":{"code":"A22","nom":"Bâtiment A22","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":6104,"conso2019":0},"B081":{"code":"A28","nom":"Bâtiment A28","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":912,"conso2019":0},"B082":{"code":"A29","nom":"Bâtiment A29","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":918,"conso2019":141},"B083":{"code":"A30a","nom":"Bâtiment A30a","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":1331,"conso2019":1202},"B084":{"code":"A31b","nom":"Bâtiment A31b","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":1940,"conso2019":0},"B085":{"code":"A32","nom":"Bâtiment A32","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":1699,"conso2019":0},"B086":{"code":"A33","nom":"Bâtiment A33","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":558,"conso2019":0},"B087":{"code":"A36","nom":"Bâtiment A36","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":4595,"conso2019":0},"B088":{"code":"A37","nom":"Bâtiment A37","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":191,"conso2019":0},"B089":{"code":"A38","nom":"Bâtiment A38","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":458,"conso2019":0},"B090":{"code":"A38b","nom":"Bâtiment A38b","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":245,"conso2019":0},"B091":{"code":"A39","nom":"Bâtiment A39","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":60,"conso2019":0},"B092":{"code":"B01","nom":"Bâtiment B01","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":43,"conso2019":0},"B093":{"code":"B02","nom":"Bâtiment B02","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":4092,"conso2019":0},"B094":{"code":"B03","nom":"Bâtiment B03","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":321,"conso2019":0},"B095":{"code":"B04","nom":"Bâtiment B04","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":1104,"conso2019":0},"B096":{"code":"B05","nom":"Bâtiment B05","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":850,"conso2019":0},"B097":{"code":"B06","nom":"Bâtiment B06","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":452,"conso2019":0},"B098":{"code":"B07","nom":"Bâtiment B07","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":711,"conso2019":0},"B099":{"code":"B07bis","nom":"Bâtiment B07bis","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B100":{"code":"B08","nom":"Bâtiment B08","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":1989,"conso2019":0},"B101":{"code":"B09","nom":"Bâtiment B09","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":36,"conso2019":0},"B102":{"code":"B10","nom":"Bâtiment B10","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B103":{"code":"B13","nom":"Bâtiment B13","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":3603,"conso2019":0},"B104":{"code":"B14","nom":"Bâtiment B14","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":1431},"B105":{"code":"B15","nom":"Bâtiment B15","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":102,"conso2019":0},"B106":{"code":"B16","nom":"Bâtiment B16","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B107":{"code":"B17","nom":"Bâtiment B17","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B108":{"code":"B18","nom":"Bâtiment B18","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":2237,"conso2019":0},"B109":{"code":"B18n","nom":"Bâtiment B18n","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B110":{"code":"B20","nom":"Bâtiment B20","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":6594,"conso2019":0},"B111":{"code":"B21","nom":"Bâtiment B21","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":400,"conso2019":0},"B112":{"code":"B22","nom":"Bâtiment B22","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":93,"conso2019":0},"B113":{"code":"B99","nom":"Bâtiment B99","type":"B","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B114":{"code":"C1","nom":"Bâtiment C1","type":"C","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":93,"conso2019":0},"B115":{"code":"C1 bis","nom":"Bâtiment C1 bis","type":"C","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B116":{"code":"C2","nom":"Bâtiment C2","type":"C","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":45,"conso2019":0},"B117":{"code":"C3","nom":"Bâtiment C3","type":"C","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":99,"conso2019":0},"B118":{"code":"C4","nom":"Bâtiment C4","type":"C","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":500,"conso2019":0},"B119":{"code":"C5","nom":"Bâtiment C5","type":"C","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":562,"conso2019":0},"B120":{"code":"C6","nom":"Bâtiment C6","type":"C","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":14600,"conso2019":10675},"B121":{"code":"M1","nom":"M1 Piscine universitaire","type":"M","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B122":{"code":"M2","nom":"M2 Halle des sports","type":"M","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B123":{"code":"M3","nom":"M3 Logement Atelier","type":"M","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B124":{"code":"M4","nom":"M4 Vestiaire Foot","type":"M","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0},"B125":{"code":"A09b","nom":"Bâtiment A09b","type":"A","etablissement":"UB","dossier":"Universite_Bordeaux","conso2018":0,"conso2019":0}};
 
-const MAX_CONSO = 55232;
+// ── CAMPUS DATA ───────────────────────────────────────────────────────────────
+const campusData = {
+  "Z001": { "nom": "Domaine du Haut Carré",       "surface": 91259,  "conso2019": 10675  },
+  "Z002": { "nom": "Campus Rocquencourt",          "surface": 602335, "conso2019": 75505  },
+  "Z003": { "nom": "Campus Montaigne-Montesquieu", "surface": 593184, "conso2019": 154117 },
+  "Z004": { "nom": "Campus Monadey",               "surface": 591554, "conso2019": 40317  },
+  "Z005": { "nom": "Campus Bordes",                "surface": 306209, "conso2019": 157580 },
+  "Z006": { "nom": "Campus Peixotto",              "surface": 204989, "conso2019": 10792  },
+};
+
+const MAX_CONSO_BUILDING = 55232;
+const MAX_CONSO_CAMPUS   = 157580;
 
 // ── COLOR SCHEMES ─────────────────────────────────────────────────────────────
 const ETABLISSEMENT_COLORS = {
-  'UB':           '#4a9eff',   // blue
-  'UBM':          '#a259ff',   // purple
-  'CROUS':        '#f39c12',   // orange
-  'CNRS':         '#2ecc71',   // green
-  'INP':          '#e74c3c',   // red
-  'AUT':          '#95a5a6',   // grey
-  'LABO':         '#1abc9c',   // teal
-  'DOMO FRANCE':  '#e67e22',   // dark orange
-  'Gironde Habitat': '#d35400',// brown
+  'UB':'#4a9eff','UBM':'#a259ff','CROUS':'#f39c12','CNRS':'#2ecc71',
+  'INP':'#e74c3c','AUT':'#95a5a6','LABO':'#1abc9c',
+  'DOMO FRANCE':'#e67e22','Gironde Habitat':'#d35400',
 };
-
 const FONCTION_COLORS = {
-  'ENSEG':     '#4a9eff',   // blue — enseignement
-  'RECHE':     '#a259ff',   // purple — recherche
-  'SPORT':     '#2ecc71',   // green — sport
-  'RESTO':     '#f39c12',   // orange — restauration
-  'BIBLIO':    '#e74c3c',   // red — bibliothèque
-  'ADMIN':     '#95a5a6',   // grey — administration
-  'RESIDENCE': '#e67e22',   // orange — résidence
-  'A':         '#3498db',   // steel blue — bât. A
-  'B':         '#2980b9',   // darker blue — bât. B
-  'C':         '#1a6fa8',   // even darker — bât. C
-  'M':         '#1abc9c',   // teal — bât. M
-  'N/A':       '#555566',   // dark — inconnu
+  'ENSEG':'#4a9eff','RECHE':'#a259ff','SPORT':'#2ecc71','RESTO':'#f39c12',
+  'BIBLIO':'#e74c3c','ADMIN':'#95a5a6','RESIDENCE':'#e67e22',
+  'A':'#3498db','B':'#2980b9','C':'#1a6fa8','M':'#1abc9c','N/A':'#555566',
 };
-
 const ETABLISSEMENT_LABELS = {
-  'UB': 'Université de Bordeaux',
-  'UBM': 'Université Bordeaux Montaigne',
-  'CROUS': 'CROUS',
-  'CNRS': 'CNRS',
-  'INP': 'Bordeaux INP',
-  'AUT': 'Autres établissements',
-  'LABO': 'Laboratoires',
-  'DOMO FRANCE': 'Domo France',
-  'Gironde Habitat': 'Gironde Habitat',
+  'UB':'Université de Bordeaux','UBM':'Université Bordeaux Montaigne',
+  'CROUS':'CROUS','CNRS':'CNRS','INP':'Bordeaux INP',
+  'AUT':'Autres établissements','LABO':'Laboratoires',
+  'DOMO FRANCE':'Domo France','Gironde Habitat':'Gironde Habitat',
 };
-
 const FONCTION_LABELS = {
-  'ENSEG': 'Enseignement',
-  'RECHE': 'Recherche',
-  'SPORT': 'Sport',
-  'RESTO': 'Restauration',
-  'BIBLIO': 'Bibliothèque',
-  'ADMIN': 'Administration',
-  'RESIDENCE': 'Résidence étudiante',
-  'A': 'Bâtiment A',
-  'B': 'Bâtiment B',
-  'C': 'Bâtiment C',
-  'M': 'Bâtiment M',
-  'N/A': 'Non classifié',
+  'ENSEG':'Enseignement','RECHE':'Recherche','SPORT':'Sport',
+  'RESTO':'Restauration','BIBLIO':'Bibliothèque','ADMIN':'Administration',
+  'RESIDENCE':'Résidence étudiante','A':'Bâtiment A','B':'Bâtiment B',
+  'C':'Bâtiment C','M':'Bâtiment M','N/A':'Non classifié',
+};
+const CAMPUS_COLORS = {
+  'Z001':'#ff6b9d','Z002':'#ffd93d','Z003':'#6bcb77',
+  'Z004':'#4d96ff','Z005':'#ff6b6b','Z006':'#c77dff',
 };
 
-// ── COLOR FUNCTIONS ───────────────────────────────────────────────────────────
-function consoToColor(value) {
+function consoToColor(value, max) {
   if (value <= 0) return new THREE.Color(0x555566);
-  const t = Math.min(value / MAX_CONSO, 1);
+  const t = Math.min(value / max, 1);
   const c = new THREE.Color();
-  if (t < 0.33) c.lerpColors(new THREE.Color(0x00aaff), new THREE.Color(0x00ff88), t / 0.33);
+  if (t < 0.33) c.lerpColors(new THREE.Color(0x00aaff), new THREE.Color(0x00ff88), t/0.33);
   else if (t < 0.66) c.lerpColors(new THREE.Color(0x00ff88), new THREE.Color(0xffdd00), (t-0.33)/0.33);
   else c.lerpColors(new THREE.Color(0xffdd00), new THREE.Color(0xff2200), (t-0.66)/0.34);
   return c;
 }
 
-function getColorForMode(data, mode) {
-  if (mode === 'conso') return consoToColor(data.conso2019);
-  if (mode === 'etablissement') {
-    const hex = ETABLISSEMENT_COLORS[data.etablissement] || '#555566';
-    return new THREE.Color(hex);
-  }
-  if (mode === 'fonction') {
-    const hex = FONCTION_COLORS[data.type] || '#555566';
-    return new THREE.Color(hex);
-  }
+function getBuildingColor(data, mode) {
+  if (mode === 'conso') return consoToColor(data.conso2019, MAX_CONSO_BUILDING);
+  if (mode === 'etablissement') return new THREE.Color(ETABLISSEMENT_COLORS[data.etablissement] || '#555566');
+  if (mode === 'fonction') return new THREE.Color(FONCTION_COLORS[data.type] || '#555566');
   return new THREE.Color(0x555566);
 }
 
-function typeColor(type) {
-  return FONCTION_COLORS[type] || '#7f8c8d';
+// ── LEGEND FILTER STATE ───────────────────────────────────────────────────────
+let activeFilter = null;
+const DIM_COLOR = new THREE.Color(0x222233);
+
+function applyFilter(key) {
+  if (activeFilter === key) {
+    // Reset — restore all buildings to their current mode color
+    activeFilter = null;
+    clickableMeshes.forEach(mesh => {
+      const info = meshDataMap.get(mesh);
+      if (!info || info.type !== 'building') return;
+      const color = getBuildingColor(waterData[info.id], currentMode);
+      mesh.material.color.copy(color);
+    });
+    document.querySelectorAll('.legend-item.clickable').forEach(el => {
+      el.classList.remove('active', 'dimmed');
+    });
+    document.getElementById('filter-panel').style.display = 'none';
+  } else {
+    activeFilter = key;
+    let total2019 = 0;
+    let total2018 = 0;
+    let count = 0;
+
+    clickableMeshes.forEach(mesh => {
+      const info = meshDataMap.get(mesh);
+      if (!info || info.type !== 'building') return;
+      const d = waterData[info.id];
+      const matches = currentMode === 'etablissement'
+        ? d.etablissement === key
+        : d.type === key;
+      if (matches) {
+        // Restore actual color for matching buildings
+        const color = getBuildingColor(d, currentMode);
+        mesh.material.color.copy(color);
+        total2019 += d.conso2019 || 0;
+        total2018 += d.conso2018 || 0;
+        count++;
+      } else {
+        // Grey out non-matching buildings
+        mesh.material.color.copy(DIM_COLOR);
+      }
+    });
+
+    // Update legend item styles
+    document.querySelectorAll('.legend-item.clickable').forEach(el => {
+      const k = el.dataset.key;
+      el.classList.toggle('active', k === key);
+      el.classList.toggle('dimmed', k !== key);
+    });
+
+    // Show total consumption panel top right
+    const panel = document.getElementById('filter-panel');
+    // Hide building/campus popup if open
+    document.getElementById('popup').style.display = 'none';
+    if (selectedMesh && meshMatMap.has(selectedMesh)) {
+      selectedMesh.material = meshMatMap.get(selectedMesh);
+      selectedMesh = null;
+    }
+
+    const label = currentMode === 'etablissement'
+      ? (ETABLISSEMENT_LABELS[key] || key)
+      : (FONCTION_LABELS[key] || key);
+
+    panel.style.display = 'block';
+    panel.innerHTML = `
+      <h2 style="color:#7ecfff; font-size:15px; margin-bottom:4px;">${label}</h2>
+      <div style="color:#555; font-size:11px; margin-bottom:14px;">${count} bâtiment${count > 1 ? 's' : ''} sélectionné${count > 1 ? 's' : ''}</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;
+        padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+        <span style="color:#888; font-size:12px;">Consommation 2018</span>
+        <span style="color:#4a9eff; font-size:13px; font-weight:700;">${total2018.toLocaleString('fr-FR')} m³</span>
+      </div>
+      <div style="padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="color:#888; font-size:12px;">Consommation 2019</span>
+          <span style="color:#7ecfff; font-size:13px; font-weight:700;">${total2019.toLocaleString('fr-FR')} m³</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.07); border-radius:4px; height:8px; overflow:hidden; margin-top:8px;">
+          <div style="height:100%; border-radius:4px; background:#7ecfff; width:${(total2019/MAX_CONSO_BUILDING*100).toFixed(1)}%; transition:width 0.5s;"></div>
+        </div>
+      </div>
+      <div style="color:#555; font-size:10px; margin-top:12px; text-align:center;">
+        Cliquez à nouveau sur la légende pour réinitialiser
+      </div>`;
+  }
 }
 
-// ── LEGEND BUILDER ────────────────────────────────────────────────────────────
 function updateLegend(mode) {
+  activeFilter = null;
+  document.getElementById('filter-panel').style.display = 'none';
   const el = document.getElementById('legend');
   if (mode === 'conso') {
-    el.innerHTML = `
-      <h3>Consommation 2019 (m³)</h3>
+    el.innerHTML = `<h3>Consommation 2019 (m³)</h3>
       <div class="legend-bar"></div>
       <div class="legend-labels"><span>0</span><span>Faible</span><span>Élevée</span></div>
-      <div class="legend-item"><div class="legend-dot" style="background:#555566;"></div><span>Pas de données 2019</span></div>
-    `;
+      <div class="legend-item"><div class="legend-dot" style="background:#555566;"></div><span>Pas de données</span></div>`;
   } else if (mode === 'etablissement') {
-    const entries = Object.entries(ETABLISSEMENT_COLORS);
-    el.innerHTML = `<h3>Établissement</h3>` +
-      entries.map(([key, color]) =>
-        `<div class="legend-item"><div class="legend-dot" style="background:${color};"></div><span>${ETABLISSEMENT_LABELS[key] || key}</span></div>`
-      ).join('');
+    el.innerHTML = `<h3>Établissement <span style="color:#555;font-size:10px;font-weight:normal;">— cliquez pour filtrer</span></h3>` +
+      Object.entries(ETABLISSEMENT_COLORS).map(([k,c]) =>
+        `<div class="legend-item clickable" data-key="${k}" onclick="applyFilter('${k}')">
+          <div class="legend-dot" style="background:${c};"></div>
+          <span>${ETABLISSEMENT_LABELS[k]||k}</span>
+        </div>`).join('');
   } else if (mode === 'fonction') {
-    const entries = Object.entries(FONCTION_COLORS);
-    el.innerHTML = `<h3>Fonction</h3>` +
-      entries.map(([key, color]) =>
-        `<div class="legend-item"><div class="legend-dot" style="background:${color};"></div><span>${FONCTION_LABELS[key] || key}</span></div>`
-      ).join('');
+    el.innerHTML = `<h3>Fonction <span style="color:#555;font-size:10px;font-weight:normal;">— cliquez pour filtrer</span></h3>` +
+      Object.entries(FONCTION_COLORS).map(([k,c]) =>
+        `<div class="legend-item clickable" data-key="${k}" onclick="applyFilter('${k}')">
+          <div class="legend-dot" style="background:${c};"></div>
+          <span>${FONCTION_LABELS[k]||k}</span>
+        </div>`).join('');
   }
+  // Restore all building colors when switching modes
+  clickableMeshes.forEach(mesh => {
+    const info = meshDataMap.get(mesh);
+    if (!info || info.type !== 'building') return;
+    const color = getBuildingColor(waterData[info.id], mode);
+    mesh.material.color.copy(color);
+  });
 }
 
 // ── SCENE ─────────────────────────────────────────────────────────────────────
@@ -273,8 +363,6 @@ scene.background = new THREE.Color(0x1a1a2e);
 scene.fog = new THREE.Fog(0x1a1a2e, 2000, 6000);
 
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 10000);
-camera.position.set(0, 300, 500);
-
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -282,86 +370,119 @@ renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.08;
-controls.minDistance = 20;
-controls.maxDistance = 2000;
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.minDistance = 20; controls.maxDistance = 2000;
 controls.maxPolarAngle = Math.PI / 2.1;
 
-// Lights
 scene.add(new THREE.AmbientLight(0xffffff, 0.7));
 const sun = new THREE.DirectionalLight(0xfff5e0, 1.5);
-sun.position.set(200, 400, 200);
-sun.castShadow = true;
-scene.add(sun);
+sun.position.set(200, 400, 200); sun.castShadow = true; scene.add(sun);
 const fill = new THREE.DirectionalLight(0xaaccff, 0.4);
-fill.position.set(-200, 100, -200);
-scene.add(fill);
+fill.position.set(-200, 100, -200); scene.add(fill);
 
-// ── STATE ──────────────────────────────────────────────────────────────────────
+// ── STATE ─────────────────────────────────────────────────────────────────────
 let currentMode = 'conso';
 let clickableMeshes = [];
 let selectedMesh = null;
-let originalMaterials = new Map(); // mesh → material per mode
-let meshDataMap = new Map();       // mesh → bid
+let meshDataMap = new Map();   // mesh → { type: 'building'|'campus', id }
+let meshMatMap  = new Map();   // mesh → material (for restore)
 
 const highlightMat = new THREE.MeshStandardMaterial({
   color: 0xffffff, emissive: 0x7ecfff, emissiveIntensity: 0.5,
   roughness: 0.3, metalness: 0.1
 });
 
-// ── MODE SWITCH ────────────────────────────────────────────────────────────────
-window.setMode = function(mode) {
+// ── MODE SWITCH ───────────────────────────────────────────────────────────────
+window.applyFilter = applyFilter;
+
+window.setMode = function(mode, btn) {
   currentMode = mode;
-
-  // Update button styles
-  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-
-  // Close popup and deselect
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
   closePopup();
-
-  // Recolor all building meshes
   clickableMeshes.forEach(mesh => {
-    const bid = meshDataMap.get(mesh);
-    if (bid && waterData[bid]) {
-      const color = getColorForMode(waterData[bid], mode);
-      mesh.material.color.copy(color);
+    const info = meshDataMap.get(mesh);
+    if (!info) return;
+    let color;
+    if (info.type === 'building') {
+      color = getBuildingColor(waterData[info.id], mode);
+    } else {
+      // Campus zones always show their distinct color regardless of mode
+      color = new THREE.Color(CAMPUS_COLORS[info.id] || '#888888');
     }
+    mesh.material.color.copy(color);
+    meshMatMap.set(mesh, mesh.material);
   });
-
-  // Update legend
   updateLegend(mode);
 };
 
 // ── RAYCASTING ────────────────────────────────────────────────────────────────
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-let mouseDown = { x: 0, y: 0 };
+let mouseDown = { x:0, y:0 };
 
-renderer.domElement.addEventListener('mousedown', (e) => { mouseDown = { x: e.clientX, y: e.clientY }; });
-renderer.domElement.addEventListener('mouseup', (e) => {
-  if (Math.abs(e.clientX - mouseDown.x) > 5 || Math.abs(e.clientY - mouseDown.y) > 5) return;
-  mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+renderer.domElement.addEventListener('mousedown', e => { mouseDown = { x:e.clientX, y:e.clientY }; });
+renderer.domElement.addEventListener('mouseup', e => {
+  if (Math.abs(e.clientX-mouseDown.x) > 5 || Math.abs(e.clientY-mouseDown.y) > 5) return;
+  mouse.x = (e.clientX/window.innerWidth)*2-1;
+  mouse.y = -(e.clientY/window.innerHeight)*2+1;
   raycaster.setFromCamera(mouse, camera);
   const hits = raycaster.intersectObjects(clickableMeshes, false);
   if (hits.length > 0) {
     const mesh = hits[0].object;
-    const bid = meshDataMap.get(mesh);
-    if (bid) {
-      if (selectedMesh && originalMaterials.has(selectedMesh)) {
-        selectedMesh.material = originalMaterials.get(selectedMesh);
-      }
+    const info = meshDataMap.get(mesh);
+    if (info) {
+      if (selectedMesh && meshMatMap.has(selectedMesh)) selectedMesh.material = meshMatMap.get(selectedMesh);
       selectedMesh = mesh;
-      originalMaterials.set(mesh, mesh.material);
       mesh.material = highlightMat;
-      showPopup(bid);
+      if (info.type === 'building') showBuildingPopup(info.id);
+      else showCampusPopup(info.id);
     }
   } else {
     closePopup();
   }
 });
+
+function showBuildingPopup(bid) {
+  document.getElementById('filter-panel').style.display = 'none';
+  const d = waterData[bid];
+  document.getElementById('popup-building').style.display = 'block';
+  document.getElementById('popup-campus').style.display = 'none';
+  document.getElementById('p-nom').textContent = d.nom;
+  document.getElementById('p-id').textContent = bid + ' · ' + d.code;
+  document.getElementById('p-etab').textContent = d.etablissement;
+  document.getElementById('p-type').textContent = FONCTION_LABELS[d.type] || d.type;
+  document.getElementById('p-type').style.background = FONCTION_COLORS[d.type] || '#555';
+  document.getElementById('p-dossier').textContent = d.dossier.replace(/_/g,' ');
+  document.getElementById('p-conso2019').textContent = d.conso2019.toLocaleString('fr-FR');
+  document.getElementById('p-val2018').textContent = d.conso2018.toLocaleString('fr-FR') + ' m³';
+  document.getElementById('p-val2019').textContent = d.conso2019.toLocaleString('fr-FR') + ' m³';
+  document.getElementById('p-bar2018').style.width = (d.conso2018/MAX_CONSO_BUILDING*100)+'%';
+  document.getElementById('p-bar2019').style.width = (d.conso2019/MAX_CONSO_BUILDING*100)+'%';
+  document.getElementById('popup').style.display = 'block';
+}
+
+function showCampusPopup(zid) {
+  const d = campusData[zid];
+  document.getElementById('popup-building').style.display = 'none';
+  document.getElementById('popup-campus').style.display = 'block';
+  document.getElementById('c-nom').textContent = d.nom;
+  document.getElementById('c-id').textContent = zid;
+  document.getElementById('c-surface').textContent = d.surface.toLocaleString('fr-FR') + ' m²';
+  document.getElementById('c-conso').textContent = d.conso2019.toLocaleString('fr-FR');
+  document.getElementById('c-val').textContent = d.conso2019.toLocaleString('fr-FR') + ' m³';
+  document.getElementById('c-bar').style.width = (d.conso2019/MAX_CONSO_CAMPUS*100)+'%';
+  document.getElementById('c-bar').style.background = CAMPUS_COLORS[zid] || '#7ecfff';
+  document.getElementById('popup').style.display = 'block';
+}
+
+window.closePopup = () => {
+  if (selectedMesh && meshMatMap.has(selectedMesh)) {
+    selectedMesh.material = meshMatMap.get(selectedMesh);
+    selectedMesh = null;
+  }
+  document.getElementById('popup').style.display = 'none';
+};
 
 // ── LOAD MODEL ────────────────────────────────────────────────────────────────
 const loader = new GLTFLoader();
@@ -372,28 +493,39 @@ loader.load('campus2026.glb', (gltf) => {
   const box = new THREE.Box3().setFromObject(model);
   const center = box.getCenter(new THREE.Vector3());
   const size = box.getSize(new THREE.Vector3());
-  const maxDim = Math.max(size.x, size.y, size.z);
   controls.target.copy(center);
-  camera.position.set(center.x, center.y + maxDim * 0.8, center.z + maxDim);
+  camera.position.set(center.x, center.y + size.y*3, center.z + size.z*0.8);
   controls.update();
 
-  model.traverse((node) => {
+  model.traverse(node => {
     if (!node.isMesh) return;
-    let ancestor = node, bid = null;
+
+    // Walk up to find named ancestor
+    let ancestor = node, bid = null, zid = null;
     while (ancestor) {
-      if (waterData[ancestor.name]) { bid = ancestor.name; break; }
+      if (waterData[ancestor.name])  { bid = ancestor.name; break; }
+      if (campusData[ancestor.name]) { zid = ancestor.name; break; }
       ancestor = ancestor.parent;
     }
+
     if (bid) {
-      const color = getColorForMode(waterData[bid], currentMode);
+      const color = getBuildingColor(waterData[bid], currentMode);
       const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.05 });
       node.material = mat;
-      node.userData.buildingId = bid;
-      node.castShadow = true;
-      node.receiveShadow = true;
+      node.castShadow = true; node.receiveShadow = true;
       clickableMeshes.push(node);
-      meshDataMap.set(node, bid);
-      originalMaterials.set(node, mat);
+      meshDataMap.set(node, { type: 'building', id: bid });
+      meshMatMap.set(node, mat);
+    } else if (zid) {
+      const color = new THREE.Color(CAMPUS_COLORS[zid] || '#888888');
+      const mat = new THREE.MeshStandardMaterial({
+        color, roughness: 0.8, metalness: 0.0,
+        transparent: true, opacity: 0.55
+      });
+      node.material = mat;
+      clickableMeshes.push(node);
+      meshDataMap.set(node, { type: 'campus', id: zid });
+      meshMatMap.set(node, mat);
     } else {
       node.material = new THREE.MeshStandardMaterial({ color: 0x2a2a3e, roughness: 0.95 });
     }
@@ -402,43 +534,17 @@ loader.load('campus2026.glb', (gltf) => {
   updateLegend(currentMode);
   document.getElementById('loading').style.display = 'none';
 
-}, undefined, (err) => {
+}, undefined, () => {
   document.getElementById('loading').innerHTML =
     '<h2 style="color:#ff4444">Erreur de chargement</h2><p style="color:#aaa;margin-top:10px">Vérifiez que campus2026.glb est dans le même dossier.</p>';
 });
 
-// ── POPUP ─────────────────────────────────────────────────────────────────────
-function showPopup(bid) {
-  const d = waterData[bid];
-  document.getElementById('p-nom').textContent = d.nom;
-  document.getElementById('p-id').textContent = bid + ' · ' + d.code;
-  document.getElementById('p-etab').textContent = d.etablissement;
-  document.getElementById('p-type').textContent = FONCTION_LABELS[d.type] || d.type;
-  document.getElementById('p-type').style.background = typeColor(d.type);
-  document.getElementById('p-dossier').textContent = d.dossier.replace(/_/g,' ');
-  document.getElementById('p-conso2019').textContent = d.conso2019.toLocaleString('fr-FR');
-  document.getElementById('p-val2018').textContent = d.conso2018.toLocaleString('fr-FR') + ' m³';
-  document.getElementById('p-val2019').textContent = d.conso2019.toLocaleString('fr-FR') + ' m³';
-  document.getElementById('p-bar2018').style.width = (d.conso2018 / MAX_CONSO * 100) + '%';
-  document.getElementById('p-bar2019').style.width = (d.conso2019 / MAX_CONSO * 100) + '%';
-  document.getElementById('popup').style.display = 'block';
-}
-
-window.closePopup = () => {
-  if (selectedMesh && originalMaterials.has(selectedMesh)) {
-    selectedMesh.material = originalMaterials.get(selectedMesh);
-    selectedMesh = null;
-  }
-  document.getElementById('popup').style.display = 'none';
-};
-
 // ── RESIZE & LOOP ─────────────────────────────────────────────────────────────
 window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.aspect = window.innerWidth/window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
 (function animate() {
   requestAnimationFrame(animate);
   controls.update();
